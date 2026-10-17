@@ -264,7 +264,7 @@ export async function render(main, params, ctx, route) {
         start(at);
         return;
       }
-      showProblem({ code: data.details, message: "The video stopped loading. The stream host may be down, or the worker can't reach it." });
+      showProblem({ code: data.details, message: "The video stopped loading. The stream host may be down, or the worker used up Cloudflare's free daily limit (it resets at midnight UTC)." });
       return;
     }
     if (data.type === Hls.ErrorTypes.MEDIA_ERROR && mediaRecoveries < 2) {

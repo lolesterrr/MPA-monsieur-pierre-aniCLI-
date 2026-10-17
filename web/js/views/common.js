@@ -7,7 +7,10 @@ const COPY = {
     title: "Cloudflare stopped the worker at hianime's door",
     body: "hianime has its bot check up and turned the worker away. Try again in a few minutes. If it keeps happening, run the local helper on your computer (it's in the README).",
   },
-  unreachable: { title: "Can't reach the worker", body: (e) => `${e.message} Check the worker address in Backstage, at the bottom of the page.` },
+  unreachable: {
+    title: "Can't reach the worker",
+    body: (e) => `${e.message} If it worked earlier today, it has probably used up Cloudflare's free daily limit, which resets at midnight UTC. Otherwise, check the worker address in Backstage, at the bottom of the page.`,
+  },
   timeout: { title: "The worker is taking too long", body: "hianime might be slow right now. Try again in a moment." },
   setup: { title: "The worker isn't finished setting up", body: (e) => e.message },
   upstream: { title: "hianime didn't answer properly", body: (e) => e.message },
