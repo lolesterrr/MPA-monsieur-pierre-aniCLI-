@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MPA</title>
+<meta name="description" content="Search anime, pick an episode, watch. A web GUI for ani-cli, with Monsieur Pierre. No accounts.">
+<meta name="theme-color" content="#ebeae4" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0c0f1a" media="(prefers-color-scheme: dark)">
+<meta property="og:type" content="website">
+<meta property="og:title" content="MPA: Monsieur Pierre's ani-cli">
+<meta property="og:description" content="Search anime, pick an episode, watch. No accounts.">
+<meta property="og:image" content="https://lolesterrr.github.io/MPA-monsieur-pierre-aniCLI-/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="preload" href="fonts/dela-gothic-one-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/zen-kaku-gothic-new-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="css/mpa.css">
+<link rel="modulepreload" href="js/main.js">
+<script src="config.js"></script>
+<script type="module" src="js/main.js"></script>
+</head>
+<body data-view="home">
+<a class="skip-link" href="#view">Skip to content</a>
+<header class="top">
+  <a class="brand" href="#/" aria-label="MPA, home">
+    <span data-pierre="beret" data-scale="2"></span>
+    <span class="wordmark" aria-hidden="true">MPA</span>
+  </a>
+  <form class="top-search" role="search" data-search>
+    <label class="sr" for="top-q">Search anime</label>
+    <input id="top-q" type="search" name="q" placeholder="Search anime" autocomplete="off" enterkeyhint="search">
+    <button class="btn" type="submit">Search</button>
+  </form>
+  <button class="btn complain" type="button" data-complain>Complain</button>
+</header>
+
+<main id="view" tabindex="-1">
+  <noscript><p>MPA needs JavaScript to search and play episodes.</p></noscript>
+</main>
+
+<footer class="foot">
+  <p>MPA is a web GUI for <a href="https://github.com/pystardust/ani-cli">ani-cli</a>. It doesn't host any video: streams come from third-party sites through MPA's worker.</p>
+  <p class="foot-links">
+    <a href="https://github.com/lolesterrr/MPA-monsieur-pierre-aniCLI-">Source on GitHub</a>
+    <button class="link-btn" type="button" data-backstage>Backstage</button>
+    <button class="link-btn" type="button" data-complain>Complain</button>
+  </p>
+</footer>
+</body>
+</html>
