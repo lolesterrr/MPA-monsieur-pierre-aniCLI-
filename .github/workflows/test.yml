@@ -1,0 +1,59 @@
+name: Tests
+
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: "17 6 * * 1" # Mondays, so the ani-cli canary notices upstream changes
+  workflow_dispatch:
+
+jobs:
+  worker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - name: The single-file worker matches core.js
+        run: node tools/build-worker.mjs --check
+      - run: node --test test/worker.test.mjs
+
+  browser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - run: pip install playwright && python -m playwright install --with-deps chromium
+      - name: Start the offline demo
+        run: |
+          FAKE_CODEC=vp9 node test/demo.mjs > demo.log 2>&1 &
+          for i in $(seq 1 90); do curl -sf http://127.0.0.1:8787/api/health > /dev/null && break; sleep 1; done
+          cat demo.log
+      - run: python test/e2e.py --shots screenshots
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: screenshots
+          path: screenshots
+
+  ani-cli-canary:
+    # Runs the latest ani-cli next to the worker on the fake site. When ani-cli changes how it
+    # scrapes hianime this goes red, and worker/core.js needs the same change.
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - run: sudo apt-get update && sudo apt-get install -y ffmpeg fzf
+      - run: curl -sSfL https://raw.githubusercontent.com/pystardust/ani-cli/master/ani-cli -o "$RUNNER_TEMP/ani-cli" && chmod +x "$RUNNER_TEMP/ani-cli"
+      - run: ANI_CLI="$RUNNER_TEMP/ani-cli" node --test test/parity.test.mjs
