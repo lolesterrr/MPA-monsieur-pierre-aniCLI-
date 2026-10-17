@@ -1,0 +1,21 @@
+{
+  "name": "mpa",
+  "version": "1.0.0",
+  "private": true,
+  "description": "MPA, Monsieur Pierre's ani-cli: a web GUI for ani-cli on GitHub Pages, with a Cloudflare Worker doing the scraping.",
+  "type": "module",
+  "license": "GPL-3.0-or-later",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test \"test/*.test.mjs\"",
+    "build": "node tools/build-worker.mjs",
+    "check": "node tools/build-worker.mjs --check && node --test \"test/*.test.mjs\"",
+    "local": "node local/server.mjs",
+    "demo": "node test/demo.mjs",
+    "e2e": "python3 test/e2e.py",
+    "sprites": "python3 tools/makepierre_mpa.py",
+    "deploy:worker": "cd worker && npx wrangler@4 deploy"
+  }
+}

@@ -1,0 +1,15 @@
+# Cloudflare Worker for MPA. Deploy from this folder with:  npx wrangler@4 deploy
+# Then add the secrets:
+#   npx wrangler@4 secret put SIGNING_KEY    (required: any long random string)
+#   npx wrangler@4 secret put GITHUB_TOKEN   (optional: lets the complaint desk file GitHub issues)
+name = "mpa"
+main = "worker.js"
+compatibility_date = "2026-09-01"
+workers_dev = true
+
+[vars]
+ALLOWED_ORIGINS = "https://lolesterrr.github.io,http://localhost:*,http://127.0.0.1:*"
+GITHUB_REPO = "lolesterrr/MPA-monsieur-pierre-aniCLI-"
+
+[observability]
+enabled = true
