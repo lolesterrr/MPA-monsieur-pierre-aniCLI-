@@ -75,3 +75,17 @@ jobs:
           sub=$(jq -r '.subtitles[0].url // empty' src.json)
           if [ -z "$sub" ]; then echo "No subtitles for this one"; exit 0; fi
           curl -sSf "$sub" | head -3
+
+      - name: What an episode costs
+        # Cloudflare's free plan allows 100,000 worker requests a day, and every segment is one
+        run: |
+          read n total <<< "$(grep -oE '^#EXTINF:[0-9.]+' media.m3u8 | cut -d: -f2 | awk '{s+=$1} END {printf "%d %.0f", NR, s}')"
+          avg=$(awk -v t="$total" -v n="$n" 'BEGIN {printf "%.1f", t/n}')
+          per=$(awk -v a="$avg" 'BEGIN {printf "%d", 1440/a + 6}')
+          echo "::notice title=Request budget::$n segments of about ${avg}s in this stream. A 24 minute episode costs about $per worker requests, so roughly $((100000 / per)) episodes a day fit in the free plan."
+          raw=$(python3 -c "import sys, urllib.parse as u; print(u.parse_qs(u.urlparse(sys.argv[1]).query)['u'][0])" "$SEG")
+          plain=$(curl -s -o /dev/null -w "%{http_code}" "$raw")
+          site=$(curl -s -D - -o /dev/null -H "Origin: https://lolesterrr.github.io" -H "Referer: https://lolesterrr.github.io/" "$raw")
+          code=$(printf "%s" "$site" | head -1 | awk '{print $2}')
+          cors=$(printf "%s" "$site" | grep -i '^access-control-allow-origin' | tr -d '\r' | cut -d' ' -f2-)
+          echo "::notice title=Stream host::Segment without a referer: HTTP $plain. With the site's referer: HTTP $code, CORS: ${cors:-none}."
