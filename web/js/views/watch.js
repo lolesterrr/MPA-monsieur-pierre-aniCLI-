@@ -1,5 +1,5 @@
 import { esc, fmtTime, toast, copyText, titleFromSlug, epName } from "../util.js";
-import { api, shows } from "../api.js";
+import { api, shows, internetDown } from "../api.js";
 import { history, prefs, progress } from "../store.js";
 import { state, noteError } from "../state.js";
 import { hydrate, pierre } from "../pierre.js";
@@ -264,7 +264,12 @@ export async function render(main, params, ctx, route) {
         start(at);
         return;
       }
-      showProblem({ code: data.details, message: "The video stopped loading. The stream host may be down, or the worker used up Cloudflare's free daily limit (it resets at midnight UTC)." });
+      // before blaming the stream host or the worker, check it isn't the visitor's internet
+      internetDown().then((down) => {
+        if (ctx.signal.aborted) return;
+        if (down) showProblem({ code: "offline", message: "The video stopped loading because nothing answers." });
+        else showProblem({ code: data.details, message: "The video stopped loading. The stream host may be down, or the worker used up Cloudflare's free daily limit (it resets at midnight UTC)." });
+      });
       return;
     }
     if (data.type === Hls.ErrorTypes.MEDIA_ERROR && mediaRecoveries < 2) {

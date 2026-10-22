@@ -18,6 +18,27 @@ export function isConfigured() {
   return Boolean(base) && !PLACEHOLDER.test(base) && /^https?:\/\//i.test(base);
 }
 
+/**
+ * Is it the visitor's internet, rather than the worker? The browser's own offline flag only knows
+ * about the Wi-Fi or data connection, not whether anything gets through, so also try to fetch a
+ * tiny file from this very site. If even that fails, it's not the worker's fault.
+ */
+export async function internetDown() {
+  if (navigator.onLine === false) return true;
+  try {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 5000);
+    try {
+      await fetch(new URL(`favicon.png?ping=${Date.now()}`, document.baseURI), { cache: "no-store", signal: ctrl.signal });
+    } finally {
+      clearTimeout(t);
+    }
+    return false;
+  } catch {
+    return true;
+  }
+}
+
 export class ApiError extends Error {
   constructor(code, message, { status = 0, data = {} } = {}) {
     super(message);
@@ -54,6 +75,7 @@ async function request(path, { params, method = "GET", body, timeout = 25000, si
     });
   } catch (e) {
     if (signal && signal.aborted) throw new ApiError("aborted", "Cancelled.");
+    if (await internetDown()) throw new ApiError("offline", "Nothing answers, not even this website.");
     if (ctrl.signal.aborted) throw new ApiError("timeout", `The worker took too long to answer (${Math.round(timeout / 1000)}s).`);
     throw new ApiError("unreachable", `Can't reach the worker at ${apiBase()}.`);
   } finally {

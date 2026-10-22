@@ -3,6 +3,11 @@ import { esc } from "../util.js";
 import { noteError } from "../state.js";
 
 const COPY = {
+  offline: {
+    title: "Bro, your internet might be shit",
+    body: "Pierre couldn't reach anything, not even this website. Check your Wi-Fi or your data bundle. When the internet comes back, MPA tries again by itself.",
+    anim: "sleep",
+  },
   blocked: {
     title: "Cloudflare stopped the worker at hianime's door",
     body: "hianime has its bot check up and turned the worker away. Try again in a few minutes. If it keeps happening, run the local helper on your computer (it's in the README).",
@@ -25,9 +30,10 @@ export function problem(err, { title, kind = "other", retry = true, anim = "knoc
   noteError(err);
   const c = COPY[err && err.code] || {};
   const t = title || c.title || "Something went wrong";
+  if (c.anim && anim === "knock") anim = c.anim;
   const b = typeof c.body === "function" ? c.body(err) : c.body || (err && err.message) || "Try again in a moment.";
   return `
-  <div class="problem" role="alert">
+  <div class="problem" role="alert" data-code="${esc((err && err.code) || "")}">
     <span data-pierre="${anim}" data-scale="4"></span>
     <div class="problem-text">
       <h2>${esc(t)}</h2>
@@ -64,4 +70,15 @@ export function fixPosters(root, hydrate) {
       { once: true },
     );
   }
+}
+
+// Searches that are clearly after something adult. Pierre doesn't stop anyone, he just judges.
+const SPICY = /(?:^|[^\p{L}\d])(porn\w*|xxx+|hentai|ecchi|nsfw|18\s*\+|r-?18|sex\w*|erotic\w*|nude[sz]?|nudity|naked|milfs?|onlyfans|boobs?|horny|playboy|kama\s*sutra)(?=$|[^\p{L}\d])/iu;
+
+export const spicy = (q) => SPICY.test(String(q || ""));
+
+/** Pierre's verdict on a spicy search, or "" for a normal one. */
+export function judge(q) {
+  if (!spicy(q)) return "";
+  return `<div class="judge" role="note"><span data-pierre="peek" data-scale="3"></span><p class="bubble bubble-left">I know what kind of man you are.</p></div>`;
 }

@@ -9,6 +9,8 @@ const MANIFEST = new URL("../assets/pierre/pierre-mpa.json", import.meta.url).hr
 
 let manifest = null;
 let loading = null;
+// the sheet is kept in memory as a blob, so Pierre still shows up when the internet drops
+let sheetUrl = SHEET;
 
 export function loadPierre() {
   if (!loading) {
@@ -18,9 +20,13 @@ export function loadPierre() {
         manifest = m;
         const used = Object.values(m.anims).flatMap((a) => a.frames);
         m.rows = Math.ceil((Math.max(...used) + 1) / m.cols);
-        const img = new Image();
-        img.src = SHEET;
-        return m;
+        return fetch(SHEET)
+          .then((r) => (r.ok ? r.blob() : null))
+          .then((blob) => {
+            if (blob) sheetUrl = URL.createObjectURL(blob);
+          })
+          .catch(() => {})
+          .then(() => m);
       })
       .catch(() => (manifest = null));
   }
@@ -60,7 +66,7 @@ class Sprite {
     node.setAttribute("role", "img");
     if (manifest) {
       // size and position are worked out in CSS from --s, so a media query can resize Pierre
-      node.style.backgroundImage = `url("${SHEET}")`;
+      node.style.backgroundImage = `url("${sheetUrl}")`;
       node.style.setProperty("--cols", manifest.cols);
       node.style.setProperty("--rows", manifest.rows);
     }

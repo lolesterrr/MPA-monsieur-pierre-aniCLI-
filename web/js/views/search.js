@@ -2,7 +2,7 @@ import { esc } from "../util.js";
 import { api, shows } from "../api.js";
 import { recent } from "../store.js";
 import { hydrate } from "../pierre.js";
-import { problem, poster, fixPosters } from "./common.js";
+import { problem, poster, fixPosters, judge } from "./common.js";
 import { openDesk } from "../complaint.js";
 
 export const title = (params) => `${params.get("q") || "Search"} | MPA`;
@@ -47,7 +47,7 @@ export async function render(main, params, ctx) {
     shows.remember(list);
     if (!list.length) {
       section.innerHTML = `
-        <h1 class="page-title">\u201c${esc(q)}\u201d</h1>
+        <h1 class="page-title">\u201c${esc(q)}\u201d</h1>${judge(q)}
         <div class="empty empty-wide">
           <span data-pierre="sad" data-scale="4"></span>
           <div>
@@ -61,7 +61,7 @@ export async function render(main, params, ctx) {
       return;
     }
     section.innerHTML = `
-      <h1 class="page-title">\u201c${esc(q)}\u201d</h1>
+      <h1 class="page-title">\u201c${esc(q)}\u201d</h1>${judge(q)}
       <p class="count">${list.length === 1 ? "1 show" : `${list.length} shows`}</p>
       <ul class="grid">${list.map(card).join("")}</ul>`;
     hydrate(section);

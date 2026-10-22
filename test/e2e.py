@@ -128,6 +128,25 @@ def run_desktop(p, scheme="light"):
     expect(page.locator("#backstage .status li")).to_have_count(4, timeout=10000)
     expect(page.locator("#backstage .status")).to_contain_text("Reachable, version")
     shot(page, f"backstage{suffix}")
+    page.keyboard.press("Escape")
+
+    # Pierre judges spicy searches (and still searches)
+    page.goto(BASE + "/#/search?q=hentai")
+    expect(page.locator(".judge .bubble")).to_have_text("I know what kind of man you are.")
+    shot(page, f"judged{suffix}")
+    page.goto(BASE + "/#/search?q=nap")
+    expect(page.locator(".grid .show")).to_have_count(4)
+    expect(page.locator(".judge")).to_have_count(0)
+
+    # no internet: blame the internet, not the worker, and retry by itself when it's back
+    page.goto(BASE + "/")
+    ctx.set_offline(True)
+    page.fill("#hero-q", "nap")
+    page.press("#hero-q", "Enter")
+    expect(page.locator(".problem h2")).to_have_text("Bro, your internet might be shit", timeout=15000)
+    shot(page, f"offline{suffix}")
+    ctx.set_offline(False)
+    expect(page.locator(".grid .show")).to_have_count(4, timeout=15000)
     browser.close()
 
 

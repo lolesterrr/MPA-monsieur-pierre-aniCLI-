@@ -1000,6 +1000,18 @@ main:focus {
   aspect-ratio: 1;
 }
 
+/* ---------- Pierre judging a search ---------- */
+
+.judge {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 4px 0 20px;
+}
+.judge .bubble {
+  font-size: 18px;
+}
+
 /* ---------- watch page ---------- */
 
 .stage-wrap {

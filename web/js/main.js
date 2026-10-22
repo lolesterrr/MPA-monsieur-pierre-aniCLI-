@@ -103,6 +103,10 @@ async function boot() {
   wireSearch();
   document.querySelector("[data-backstage]").addEventListener("click", openBackstage);
   window.addEventListener("hashchange", navigate);
+  // back online: press "Try again" on any "your internet" problem for you
+  window.addEventListener("online", () => {
+    for (const btn of document.querySelectorAll('.problem[data-code="offline"] [data-retry]')) btn.click();
+  });
   await navigate();
 }
 
